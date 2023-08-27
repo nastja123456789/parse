@@ -32,7 +32,6 @@ public class Main {
     private static List<Ticket> parseJsonJ(String json) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
         json = json.replace(" ", "").replace("\n", "");
-//        System.out.println(json);
         String ticketsArray = json.substring(json.indexOf("[") + 1, json.indexOf("]"));
         String[] ticketStrings = ticketsArray.split("\\},\\{");
         for (String ticketString : ticketStrings) {
@@ -95,7 +94,6 @@ public class Main {
         Integer time= tickets.get(0).calculateFlightTime();
         String au = tickets.get(0).carrier;
         for (Ticket ticket : tickets) {
-//            System.out.println(ticket.originName);
             if (ticket.origin.equals("VVO") && ticket.destination.equals("TLV")) {
                 Integer curr = ticket.calculateFlightTime();
                 if (curr<time) {
