@@ -1,8 +1,6 @@
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,8 +39,11 @@ public class Main {
                 field=field.replace("}","");
                 field=field.replace("{","");
                 String[] keyValue = field.split(":");
+                System.out.println(field);
                 String key = keyValue[0].replaceAll("\"", "");
                 String value = keyValue[1].replaceAll("\"", "");
+//                String value1=keyValue[];
+                System.out.println(key+" " + value);
                 switch (key) {
                     case "origin":
                         ticket.origin = value;
@@ -60,17 +61,16 @@ public class Main {
                         ticket.departureDate = value;
                         break;
                     case "departure_time":
-                        StringBuilder sb=new StringBuilder(value);
-                        sb.append(":00");
-                        ticket.departureTime = sb.toString();
+                        System.out.println(value);
+                        String value1 = keyValue[2].replace("\"", "");
+                        ticket.departureTime=value+":"+value1;
                         break;
                     case "arrival_date":
                         ticket.arrivalDate = value;
                         break;
                     case "arrival_time":
-                        StringBuilder sb1=new StringBuilder(value);
-                        sb1.append(":00");
-                        ticket.arrivalTime = sb1.toString();
+                        String value2 = keyValue[2].replace("\"", "");
+                        ticket.arrivalTime=value+":"+value2;
                         break;
                     case "carrier":
                         ticket.carrier = value;
@@ -90,21 +90,35 @@ public class Main {
     }
 
     private static void calculateMinFlightTime(List<Ticket> tickets) {
+        Map<String, Integer> carrierMinDuration = new HashMap<>();
         System.out.println("Минимальное время полета между городами Владивосток и Тель-Авив: ");
-        Integer time= tickets.get(0).calculateFlightTime();
-        String au = tickets.get(0).carrier;
         for (Ticket ticket : tickets) {
             if (ticket.origin.equals("VVO") && ticket.destination.equals("TLV")) {
-                Integer curr = ticket.calculateFlightTime();
-                if (curr<time) {
-                    au=ticket.carrier;
-                    time=curr;
+                int duration = getFlightDuration(ticket.departureTime,ticket.arrivalTime);
+                String key=ticket.carrier;
+                System.out.println(ticket.arrivalTime+" " + ticket.departureTime + " " + ticket.carrier + " " + getFlightDuration(ticket.departureTime,ticket.arrivalTime));
+                if (!carrierMinDuration.containsKey(key) || duration<carrierMinDuration.get(key)) {
+                    carrierMinDuration.put(key, duration);
                 }
             }
         }
-        System.out.println("Авиаперевозчик: " + au);
-        System.out.println("Время полета: " + time + " ч");
-        System.out.println();
+        for (Map.Entry<String, Integer> entry : carrierMinDuration.entrySet()) {
+            String carrier = entry.getKey();
+            int duration = entry.getValue();
+            System.out.println(carrier+" " + duration);
+            System.out.printf("Минимальное время полета между городами Владивосток и Тель-Авив для авиаперевозчика %s: %d мин%n",
+                    carrier, duration);
+        }
+    }
+
+    private static int getFlightDuration(String departureTime, String arrivalTime) {
+        int departureHour = Integer.parseInt(departureTime.split(":")[0]);
+        int departureMinute = Integer.parseInt(departureTime.split(":")[1]);
+        int arrivalHour = Integer.parseInt(arrivalTime.split(":")[0]);
+        int arrivalMinute = Integer.parseInt(arrivalTime.split(":")[1]);
+        System.out.println(departureHour+" " + departureMinute);
+        int duration = (arrivalHour * 60 + arrivalMinute) - (departureHour * 60 + departureMinute);
+        return duration;
     }
 
     private static void calculatePriceDifference(List<Ticket> tickets) {
@@ -150,21 +164,5 @@ public class Main {
         private String carrier;
         private int stops;
         private int price;
-
-        public int calculateFlightTime() {
-            int flightTime=0;
-            int departureHour = Integer.parseInt(departureTime.split(":")[0]);
-            int departureMinute = Integer.parseInt(departureTime.split(":")[1]);
-            int arrivalHour = Integer.parseInt(arrivalTime.split(":")[0]);
-            int arrivalMinute = Integer.parseInt(arrivalTime.split(":")[1]);
-            String departureDt=departureDate;
-            String arrivalDt=arrivalDate;
-            if (!departureDt.equals(arrivalDt)) {
-                flightTime = (arrivalHour - departureHour) * 60 + (arrivalMinute - departureMinute)+1440;
-            } else {
-                flightTime = (arrivalHour - departureHour) * 60 + (arrivalMinute - departureMinute);
-            }
-            return flightTime / 60;
-        }
     }
 }
