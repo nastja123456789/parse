@@ -79,8 +79,8 @@ public class Main {
                         ticket.stops = Integer.parseInt(value);
                         break;
                     case "price":
-                        String val = value.substring(0, value.length() - 2);
-                        ticket.price = Integer.parseInt(val);
+//                        String val = value.substring(0, value.length() - 2);
+                        ticket.price = Integer.parseInt(value);
                         break;
                 }
             }
@@ -127,10 +127,12 @@ public class Main {
         int totalPrices = 0;
         for (Ticket ticket : tickets) {
             if (ticket.origin.equals("VVO") && ticket.destination.equals("TLV")) {
+                System.out.println(ticket.price);
                 prices.add(ticket.price);
                 totalPrices += ticket.price;
             }
         }
+        System.out.println(totalPrices+" "+ prices.size());
         int averagePrice = totalPrices / prices.size();
         int medianPrice = calculateMedianPrice(prices);
         int priceDifference = averagePrice - medianPrice;
@@ -140,6 +142,7 @@ public class Main {
     }
 
     private static int calculateMedianPrice(List<Integer> prices) {
+        Collections.sort(prices);
         int size = prices.size();
         boolean even = size % 2 == 0;
         if (even) {
